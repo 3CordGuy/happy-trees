@@ -1,4 +1,9 @@
-# happy-trees
+# 🌳 Happy-Trees 🌲
+
+Happy Trees is a simple ASCII File Tree Generator.
+
+It runs in the browser and helps you generate simple ASCII directory structures for sharing in your README files, markdown or other text-based documentation.
+
 
 ## Project setup
 ```
