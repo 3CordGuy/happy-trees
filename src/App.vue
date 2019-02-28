@@ -7,13 +7,13 @@
         <div class="section">
           <div class="columns">
             <div class="column">
-              <textarea class="textarea" v-model="md" @md="update" placeholder=""></textarea>
+              <textarea class="textarea" v-model="md" @md="update" placeholder="" rows="20"></textarea>
             </div>
             <div class="column">
               <pre class="content has-text-left" v-html="tree"></pre>
             </div>
             <div class="column">
-              <pre class="content has-text-left" v-html="compiledMarkdown"></pre>
+              <pre class="content has-text-left" v-html="parsed_markdown"></pre>
             </div>
           </div>
         </div>
@@ -27,42 +27,45 @@ import Editor from './components/Editor.vue'
 import marked from 'marked'
 import _ from 'lodash'
 
-const listMapper = (item, lvl = 1, prev = {}, next = {}) => {
-  console.log(item, lvl, next)
-  const level = '  |  '
-  const prevStruct = prev.type === 'list_start' ? level.repeat(lvl) : '    '
-  const nextStruct = next.type === 'list_start' ? '└─' : '├─'
+const list_mapper = (item, lvl = 1, prev = {}, next = {}) => {
+  const level = '|  '
+
   const items = {
-    heading: `${item.text}`,
-    list_start: `  `,
-    list_item_start: `\n${lvl > 0 ? prevStruct : ''}  ${nextStruct}`,
-    text: ` ${item.text}`,
+    heading: `${item.text}\n`,
+    list_start: ``,
+    list_item_start: `${level.repeat(lvl)}`,
+    text: `${ next.type === 'list_item_start' ? '├─' : '└─' } ${item.text}\n`,
     list_item_end: ``,
     list_end: ``
   }
 
-  return items[item.type] ? items[item.type] : ''
+  if (items[item.type]) return items[item.type]
+
+  if (!items[item.type] && item.text) return item.text
+
+  return ''
 }
 
 export default {
   name: 'app',
   data() {
     return {
-      md: '# directory\n- file.png\n- tests\n  - file.jpg'
+      md: '# Example\n- .mspm\n  - packages\n  - folder2\n- modules\n    - ui-kit\n      - file.jpg'
     }
   },
   computed: {
-    compiledMarkdown: function () {
+    parsed_markdown: function () {
       return marked.lexer(this.md, { sanitize: true })
     },
     tree: function () {
-      let treeNodes = this.compiledMarkdown
+      let treeNodes = this.parsed_markdown
       let str = ''
       let lvl = 0
+      
       treeNodes.forEach((item, i) => {
         let prevType = treeNodes[i-2]
         let nextType = treeNodes[i+2]
-        str += listMapper(item, lvl, prevType, nextType)
+        str += list_mapper(item, lvl, prevType, nextType)
 
         if (item.type === 'list_item_start') {
           lvl += 1
@@ -79,6 +82,7 @@ export default {
     }, 300)
   }
 }
+
 
 </script>
 
@@ -105,5 +109,9 @@ h1.title {
 }
 h2.hero-subtitle {
 	font-size: 1.25em;
+}
+
+textarea {
+  height: 300px;
 }
 </style>
