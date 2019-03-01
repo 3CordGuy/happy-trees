@@ -12,6 +12,7 @@
           <div class="columns is-gapless">
             <div class="column">
               <codemirror
+                class="editor"
                 v-model="md"
                 @change="update"
                 :options="{ mode: 'markdown' }"
@@ -22,16 +23,37 @@
             </div>
           </div>
           <div class="columns is-centered">
-            <button class="button is-primary is-rounded is-large" v-text="copy_text" @click="on_copy">Copy</button>
+            <button class="button is-primary is-rounded is-large copy-button" v-text="copy_text" @click="on_copy">Copy</button>
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="hero-foot is-warning is-bold">
+      <footer class="footer">
+        <div class="container">
+          <div class="content has-text-centered">
+          <div>
+            Happy Trees &copy; 2019 Josh Weaver
+          </div>
+          <a href="https://github.com/3Cordguy/listen-up">
+            <span class="icon is-large">
+              <i class="fab fa-2x fa-github-square"></i>
+            </span>
+          </a>
+          <a href="https://www.twitter.com/3CordGuy">
+            <span class="icon is-large">
+              <i class="fab fa-2x fa-twitter"></i>
+            </span>
+          </a>
+        </div>
+        </div>
+      </footer>
     </div>
   </section>
 </template>
 
 <script>
-import Editor from "./components/Editor.vue";
 import marked from "marked";
 import _ from "lodash";
 import Vue from "vue";
@@ -161,8 +183,12 @@ pre.output {
 }
 
 .main-wrapper {
-    background: white;
+    background: #FFFFFF;
     border-radius: 0.8em;
     box-shadow: 0em 0.2em 1em rgba(0, 0, 0, .2);
+}
+
+.copy-button {
+  margin-top: 1.6rem;
 }
 </style>
