@@ -15,7 +15,11 @@
                 class="editor"
                 v-model="md"
                 @change="update"
-                :options="{ mode: 'markdown' }"
+                :options="{ 
+                  mode: 'markdown', 
+                  lineNumbers: true,
+                  autofocus: true
+                }"
               ></codemirror>
             </div>
             <div class="column">
@@ -103,18 +107,18 @@ export default {
       return marked.lexer(this.md, { sanitize: true });
     },
     tree: function() {
-      let treeNodes = this.parsed_markdown;
-      let str = "";
+      let tree_nodes = this.parsed_markdown;
+      let str = '';
       let lvl = 0;
 
-      treeNodes.forEach((item, i) => {
-        let prevType = treeNodes[i - 2];
-        let nextType = treeNodes[i + 2];
+      tree_nodes.forEach((item, i) => {
+        let prevType = tree_nodes[i - 2];
+        let nextType = tree_nodes[i + 2];
         str += list_mapper(item, lvl, prevType, nextType);
 
-        if (item.type === "list_item_start") {
+        if (item.type === 'list_item_start') {
           lvl += 1;
-        } else if (item.type === "list_item_end") {
+        } else if (item.type === 'list_item_end') {
           lvl -= 1;
         }
       });
@@ -123,14 +127,12 @@ export default {
   },
   methods: {
     on_copy: function (e) {
-       // : `Couldn't Copy 😱`
       this.$copyText(this.tree)
         .then((e) => {
           this.copy_text = 'Tree Copied! 👍'
           setTimeout(() => (this.copy_text = 'Copy Tree to Clipboard'), 3000)
         }, function (e) {
-          alert('Can not copy')
-          console.log(e)
+          alert(`Can't copy! 😱`)
         })
     },
     on_error: function (e) {
@@ -172,12 +174,16 @@ h2.hero-subtitle {
   font-size: 1.25em;
 }
 
+.CodeMirror{
+  height: 350px;
+  background: linear-gradient(to left, rgba(0,0,0,.03) 0%, rgba(255,255,255,1) 100%);
+}
 
 pre.output {
   height: 350px;
-  border-left: 2px solid #43C6AC;
+  border-left: 0.2rem solid #43C6AC;
   font-family: Menlo, Monaco, "Courier New", Courier, monospace;
-  line-height: 20px;
+  line-height: 1.2rem;
   white-space: pre-wrap;
   background: linear-gradient(to right, rgba(0,0,0,.03) 0%, rgba(255,255,255,1) 100%);
 }
