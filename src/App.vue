@@ -25,6 +25,9 @@
             <div class="column">
               <pre class="output has-text-left" v-html="tree"></pre>
             </div>
+            <div class="column">
+              <pre class="output has-text-left" v-html="parsed_markdown"></pre>
+            </div>
           </div>
           <div class="columns is-centered">
             <button class="button is-primary is-rounded is-large copy-button" v-text="copy_text" @click="on_copy">Copy</button>
@@ -108,21 +111,27 @@ export default {
     },
     tree: function() {
       let tree_nodes = this.parsed_markdown;
-      let str = '';
-      let lvl = 0;
+      let nodes_array = []
+      let current_node
 
-      tree_nodes.forEach((item, i) => {
-        let prevType = tree_nodes[i - 2];
-        let nextType = tree_nodes[i + 2];
-        str += list_mapper(item, lvl, prevType, nextType);
+      tree_nodes.forEach((node, i) => {
+        
+      })
 
-        if (item.type === 'list_item_start') {
-          lvl += 1;
-        } else if (item.type === 'list_item_end') {
-          lvl -= 1;
-        }
-      });
-      return str;
+      // tree_nodes.forEach((item, i) => {
+      //   let prevType = tree_nodes[i - 2];
+      //   let nextType = tree_nodes[i + 2];
+      //   str += list_mapper(item, lvl, prevType, nextType);
+
+      //   if (item.type === 'list_item_start') {
+      //     lvl += 1;
+      //   } else if (item.type === 'list_item_end') {
+      //     lvl -= 1;
+      //   }
+      // });
+      // return str;
+
+      return nodes_array
     }
   },
   methods: {
@@ -143,6 +152,7 @@ export default {
     },
   }
 };
+
 </script>
 
 <style lang="scss">
