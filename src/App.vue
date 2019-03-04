@@ -30,7 +30,11 @@
             </div>
           </div>
           <div class="columns is-centered">
-            <button class="button is-primary is-rounded is-large copy-button" v-text="copy_text" @click="on_copy">Copy</button>
+            <button
+              class="button is-primary is-rounded is-large copy-button"
+              v-text="copy_text"
+              @click="on_copy"
+            >Copy</button>
           </div>
         </div>
       </div>
@@ -40,20 +44,18 @@
       <footer class="footer">
         <div class="container">
           <div class="content has-text-centered">
-          <div>
-            Happy Trees &copy; 2019 Josh Weaver
+            <div>Happy Trees &copy; 2019 Josh Weaver</div>
+            <a href="https://github.com/3Cordguy/listen-up">
+              <span class="icon is-large">
+                <i class="fab fa-2x fa-github-square"></i>
+              </span>
+            </a>
+            <a href="https://www.twitter.com/3CordGuy">
+              <span class="icon is-large">
+                <i class="fab fa-2x fa-twitter"></i>
+              </span>
+            </a>
           </div>
-          <a href="https://github.com/3Cordguy/listen-up">
-            <span class="icon is-large">
-              <i class="fab fa-2x fa-github-square"></i>
-            </span>
-          </a>
-          <a href="https://www.twitter.com/3CordGuy">
-            <span class="icon is-large">
-              <i class="fab fa-2x fa-twitter"></i>
-            </span>
-          </a>
-        </div>
         </div>
       </footer>
     </div>
@@ -65,9 +67,9 @@ import marked from "marked";
 import _ from "lodash";
 import Vue from "vue";
 import { codemirror } from "vue-codemirror-lite";
-import VueClipboard from 'vue-clipboard2'
+import VueClipboard from "vue-clipboard2";
 
-Vue.use(VueClipboard)
+Vue.use(VueClipboard);
 
 require("codemirror/mode/markdown/markdown");
 
@@ -90,8 +92,6 @@ const list_mapper = (item, lvl = 1, prev = {}, next = {}) => {
   return "";
 };
 
-
-
 export default {
   components: {
     codemirror,
@@ -100,59 +100,125 @@ export default {
   name: "app",
   data() {
     return {
-    copy_text: 'Copy Tree to Clipboard',
-    md:
+      copy_text: "Copy Tree to Clipboard",
+      md:
         "# Example\n- assets\n  - imgs\n  - css\n- components\n    - ui-kit\n      - index.js"
     };
   },
   computed: {
     parsed_markdown: function() {
-      return marked.lexer(this.md, { sanitize: true });
+      // return marked.lexer(this.md, { sanitize: true });
+
+      return [
+        {
+          text: "Example"
+        },
+        {
+          text: "assets",
+          list: [
+            {
+              text: "imgs"
+            },
+            {
+              text: "css"
+            }
+          ]
+        },
+        {
+          text: "components"
+          // list: [
+          //   {
+          //     text: 'ui-kit',
+          //   },
+          //   {
+          //     text: 'index.js',
+          //   }
+          // ]
+        }
+      ];
     },
     tree: function() {
       let tree_nodes = this.parsed_markdown;
-      let nodes_array = []
-      let current_node
+      let tree_str = "";
+      let depth = 0;
+      let parent;
+      // Example
+      // ├─ assets
+      // |  ├─ imgs
+      // |  └─ css
+      // ├─ components
+      // |  ├─ ui-kit
+      // |  |  └─ index.js
+      function has_next_sibling(arr = [], idx = 0) {
+        return arr[idx + 1] ? true : false;
+      }
 
-      tree_nodes.forEach((node, i) => {
-        
-      })
+      function get_branch_type(arr, idx) {
+        if (has_next_sibling(arr, idx)) return `├─`;
+        return `└─`;
+      }
 
-      // tree_nodes.forEach((item, i) => {
-      //   let prevType = tree_nodes[i - 2];
-      //   let nextType = tree_nodes[i + 2];
-      //   str += list_mapper(item, lvl, prevType, nextType);
+      function get_branch_depth(lvl, has_next_sibling = false, parent_has_next_sibling = false) {
+        let level = has_next_sibling ? `|  ` : `   `;
+        return lvl ? level.repeat(lvl) : ``;
+      }
 
-      //   if (item.type === 'list_item_start') {
-      //     lvl += 1;
-      //   } else if (item.type === 'list_item_end') {
-      //     lvl -= 1;
-      //   }
-      // });
-      // return str;
+      function climb_tree(nodes, parent = {}) {
+        nodes.forEach((node, idx, arr) => {
+          // Check if child has a list
+          if (node.list) {
+            // Start manipulating the string
+            tree_str += `${get_branch_depth(
+              depth,
+              has_next_sibling(nodes, idx),
+              parent
+            )}${get_branch_type(arr, idx)} ${node.text}\n`;
 
-      return nodes_array
+            depth++;
+
+            // Passing in parent node state as object for downstream checks
+            climb_tree(node.list, { nodes, idx });
+          } else if (depth > 0) {
+            tree_str += `${
+              get_branch_depth(
+                depth,
+                has_next_sibling(nodes, idx),
+                has_next_sibling(parent.nodes, parent.idx)
+              )
+            }${get_branch_type(arr, idx)} ${node.text}\n`;
+
+          } else {
+            tree_str += `${node.text}\n`;
+          }
+          console.log(node.text);
+        });
+      }
+
+      climb_tree(tree_nodes);
+
+      return tree_str;
     }
   },
   methods: {
-    on_copy: function (e) {
-      this.$copyText(this.tree)
-        .then((e) => {
-          this.copy_text = 'Tree Copied! 👍'
-          setTimeout(() => (this.copy_text = 'Copy Tree to Clipboard'), 3000)
-        }, function (e) {
-          alert(`Can't copy! 😱`)
-        })
+    on_copy: function(e) {
+      this.$copyText(this.tree).then(
+        e => {
+          this.copy_text = "Tree Copied! 👍";
+          setTimeout(() => (this.copy_text = "Copy Tree to Clipboard"), 3000);
+        },
+        function(e) {
+          alert(`Can't copy! 😱`);
+        }
+      );
     },
-    on_error: function (e) {
-      alert('Failed to copy texts')
+    on_error: function(e) {
+      alert("Failed to copy texts");
     },
     update(value) {
       this.md = value;
-    },
+    }
   }
 };
-
 </script>
 
 <style lang="scss">
@@ -164,11 +230,17 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  background: #43C6AC;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to bottom, #191654, #43C6AC);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to bottom, #191654, #43C6AC); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
-
+  background: #43c6ac; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to bottom,
+    #191654,
+    #43c6ac
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to bottom,
+    #191654,
+    #43c6ac
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
 h1.title,
@@ -184,24 +256,32 @@ h2.hero-subtitle {
   font-size: 1.25em;
 }
 
-.CodeMirror{
+.CodeMirror {
   height: 350px;
-  background: linear-gradient(to left, rgba(0,0,0,.03) 0%, rgba(255,255,255,1) 100%);
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.03) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
 }
 
 pre.output {
   height: 350px;
-  border-left: 0.2rem solid #43C6AC;
+  border-left: 0.2rem solid #43c6ac;
   font-family: Menlo, Monaco, "Courier New", Courier, monospace;
   line-height: 1.2rem;
   white-space: pre-wrap;
-  background: linear-gradient(to right, rgba(0,0,0,.03) 0%, rgba(255,255,255,1) 100%);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.03) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
 }
 
 .main-wrapper {
-    background: #FFFFFF;
-    border-radius: 0.8em;
-    box-shadow: 0em 0.2em 1em rgba(0, 0, 0, .2);
+  background: #ffffff;
+  border-radius: 0.8em;
+  box-shadow: 0em 0.2em 1em rgba(0, 0, 0, 0.2);
 }
 
 .copy-button {
