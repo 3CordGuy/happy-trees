@@ -177,7 +177,7 @@ export default {
             depth++;
 
             // Passing in parent node state as object for downstream checks
-            climb_tree(node.list, { nodes, idx });
+            // climb_tree(node.list, { nodes, idx });
           } else if (depth > 0) {
             tree_str += `${
               get_branch_depth(
@@ -190,7 +190,6 @@ export default {
           } else {
             tree_str += `${node.text}\n`;
           }
-          console.log(node.text);
         });
       }
 
