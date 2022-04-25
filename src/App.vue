@@ -15,8 +15,8 @@
                 class="editor"
                 v-model="md"
                 @change="update"
-                :options="{ 
-                  mode: 'markdown', 
+                :options="{
+                  mode: 'markdown',
                   lineNumbers: true,
                   autofocus: true
                 }"
@@ -38,7 +38,7 @@
         <div class="container">
           <div class="content has-text-centered">
           <div>
-            Happy Trees &copy; 2019 Josh Weaver
+            Happy Trees &copy; {{new Date().getFullYear()}} Josh Weaver
           </div>
           <a href="https://github.com/3Cordguy/listen-up">
             <span class="icon is-large">
@@ -108,6 +108,7 @@ export default {
     },
     tree: function() {
       let tree_nodes = this.parsed_markdown;
+      console.log(tree_nodes)
       let str = '';
       let lvl = 0;
 
@@ -175,12 +176,12 @@ h2.hero-subtitle {
 }
 
 .CodeMirror{
-  height: 350px;
+  height: 450px;
   background: linear-gradient(to left, rgba(0,0,0,.03) 0%, rgba(255,255,255,1) 100%);
 }
 
 pre.output {
-  height: 350px;
+  height: 450px;
   border-left: 0.2rem solid #43C6AC;
   font-family: Menlo, Monaco, "Courier New", Courier, monospace;
   line-height: 1.2rem;

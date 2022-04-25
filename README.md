@@ -10,7 +10,11 @@ I know that there is `brew install tree` and all that fancy linux stuff you can 
 
 Also, [Bob Ross](https://www.youtube.com/watch?v=YLO7tCdBVrA&list=RD0n4f-VDjOBE&index=5) is awesome. ;)
 
-# Built with 
+# Requirements
+
+- Tested within Node v12 dev environment
+
+# Built with
 
 - Vue CLI
 - Bulma
